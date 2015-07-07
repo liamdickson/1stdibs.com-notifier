@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "1stdibs.com Notifier",
+  "description": "This extension puts a red bar on the top of the site if you're on production (helpful if you are afraid of doing something real while testing).",
+  "author": "Liam Dickson",
+  "version": "1.0",
+  "minimum_chrome_version": "10.0",
+  "permissions": [
+    "tabs",
+    "http://*.1stdibs.com/",
+    "https://*.1stdibs.com/"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://adminv2.1stdibs.com/*", "*://admin.1stdibs.com/*", "*://www.1stdibs.com/*"],
+      "js": ["notifier.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
