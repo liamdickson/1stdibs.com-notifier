@@ -1,0 +1,14 @@
+
+.chrome-extension-notice {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 15px;
+    z-index: 9999;
+}
