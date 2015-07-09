@@ -1,0 +1,31 @@
+{
+  "name": "1stdibs.com-notifier",
+  "version": "1.0.0",
+  "description": "The purpose of this chrome extension is to make it easy to tell if you are on the production site. This can be useful if you are afraid of doing something real when you mean to be testing.",
+  "main": "entry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liamdickson/1stdibs.com-notifier.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liamdickson/1stdibs.com-notifier/issues"
+  },
+  "homepage": "https://github.com/liamdickson/1stdibs.com-notifier#readme",
+  "devDependencies": {
+    "babel-core": "^5.6.16",
+    "babel-loader": "^5.3.1",
+    "node-libs-browser": "^0.5.2",
+    "webpack": "^1.10.1"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.5",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.23.7",
+    "underscore": "^1.8.3"
+  }
+}

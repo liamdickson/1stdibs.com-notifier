@@ -8,20 +8,18 @@
   "permissions": [
     "storage",
     "tabs",
-    "http://*.1stdibs.com/",
-    "https://*.1stdibs.com/"
+    "<all_urls>"
   ],
   "options_page": "options.html",
   "content_scripts": [
     {
       "matches": [
-        "*://*.1stdibs.com/*"
+        "<all_urls>"
       ],
-      "js": ["jquery.min.js", "underscore-min.js"],
-      "css": ["notice.css"]
+      "css": ["css/notifier-chrome-extension-notice.css"]
     }
   ],
   "background": {
-    "page": "background.html"
+    "scripts": ["js/background-bundle.js"]
   }
 }

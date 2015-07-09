@@ -6,11 +6,13 @@
 
 'use strict';
 
-var notice = $('<div/>', {
+var $ = require('jquery');
+var notice;
+
+notice = $('<div/>', {
     class: 'chrome-extension-notice',
     style: 'color: ' + rule.color + '; ' +
     'background-color: ' + rule.backgroundColor,
     text: rule.text
 });
-
 $('body').prepend(notice);
