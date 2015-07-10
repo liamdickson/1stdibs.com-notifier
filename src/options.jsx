@@ -41,8 +41,8 @@ var FormGroup = React.createClass({
                         <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='bgColor' type='text' label='Background Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={bgColor} />
                         <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='color' type='text' label='Text Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={color} />
                         {alert}
-                        <Button bsSize="small" onClick={()=>{this.props.saveFunc(this.refs, ()=>{this.setState({alertVisible: true});})}} bsStyle='success'>Save</Button>
-                        <Button bsSize="small" onClick={this.props.removeFunc} bsStyle='danger' className='pull-right'>Delete Rule</Button>
+                        <Button bsSize="small" onClick={this.props.removeFunc} bsStyle='danger'>Delete Rule</Button>
+                        <Button bsSize="small" onClick={()=>{this.props.saveFunc(this.refs, ()=>{this.setState({alertVisible: true});})}} bsStyle='success' className='pull-right'>Save</Button>
                     </form>
                 </Panel>
             </div>

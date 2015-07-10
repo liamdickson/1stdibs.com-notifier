@@ -116,17 +116,17 @@
 	                    alert,
 	                    React.createElement(
 	                        Button,
+	                        { bsSize: 'small', onClick: this.props.removeFunc, bsStyle: 'danger' },
+	                        'Delete Rule'
+	                    ),
+	                    React.createElement(
+	                        Button,
 	                        { bsSize: 'small', onClick: function () {
 	                                _this.props.saveFunc(_this.refs, function () {
 	                                    _this.setState({ alertVisible: true });
 	                                });
-	                            }, bsStyle: 'success' },
+	                            }, bsStyle: 'success', className: 'pull-right' },
 	                        'Save'
-	                    ),
-	                    React.createElement(
-	                        Button,
-	                        { bsSize: 'small', onClick: this.props.removeFunc, bsStyle: 'danger', className: 'pull-right' },
-	                        'Delete Rule'
 	                    )
 	                )
 	            )
