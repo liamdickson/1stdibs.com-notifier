@@ -1,3 +1,11 @@
+html {
+    min-width: 700px;
+}
+
+body {
+    min-width: 700px;
+}
+
 .reset-button {
     margin-top: 5px;
 }
