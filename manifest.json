@@ -3,7 +3,7 @@
   "name": "1stdibs.com Notifier",
   "description": "This extension puts a red bar on the top of the site if you're on production.",
   "author": "Liam Dickson",
-  "version": "2.0",
+  "version": "2.1",
   "minimum_chrome_version": "10.0",
   "permissions": [
     "storage",

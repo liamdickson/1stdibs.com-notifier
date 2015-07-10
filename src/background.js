@@ -28,10 +28,8 @@ defaultRules = {
 
 chrome.storage.sync.get('pageRules', function (data) {
     if (data.pageRules) {
-        console.log('get stored rules');
         pageRules = data.pageRules;
     } else {
-        console.log('set initial rules');
         chrome.storage.sync.set({pageRules: defaultRules});
         pageRules = defaultRules;
     }
@@ -39,18 +37,21 @@ chrome.storage.sync.get('pageRules', function (data) {
 
 chrome.runtime.onMessage.addListener(function(message,sender,sendResponse){
     if(message.method == "notifier-setRules") {
-        chrome.storage.sync.get('pageRules', function (data) {
-            pageRules = data.pageRules;
-        });
+        chrome.storage.sync.set({pageRules: message.pageRules});
+        pageRules = message.pageRules;
         sendResponse({type: "notifier-rulesSet"});
     }
     if(message.method == "notifier-resetRules") {
         chrome.storage.sync.set({pageRules: defaultRules});
+        pageRules = defaultRules;
         sendResponse({type: "notifier-rulesReset"});
     }
 });
 
 var matchesPage = function (url, rule) {
+    if(!rule.regex){
+        return false;
+    }
     return (new RegExp(rule.regex)).test(url);
 };
 

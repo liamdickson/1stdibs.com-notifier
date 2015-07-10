@@ -7,64 +7,81 @@
 'use strict';
 var React = require('react');
 var _ = require('underscore');
-var {Button, PanelGroup, Panel, PageHeader, Well, Input} = require('react-bootstrap');
+var $ = require('jquery');
+var {Alert, Button, PanelGroup, Panel, PageHeader, Well, Input, Modal} = require('react-bootstrap');
 
 var FormGroup = React.createClass({
     displayName: 'FormGroup',
-    save: function () {
-        this.props.saveFunc(this.refs);
+    getInitialState: function () {
+        return {
+            alertVisible: false
+        };
     },
     render: function () {
+        var alert = "";
+        if (this.state.alertVisible) {
+            alert = (
+                <Alert bsStyle='success' bsSize='small' onDismiss={()=>{this.setState({alertVisible: false});}} dismissAfter={2000}>
+                    <p>Saved {this.props.name}</p>
+                </Alert>
+            );
+        }
         var ruleName = this.props.name;
-        var regex = this.props.rule.regex || ".*://.*\\.1stdibs\\.com/";
+        var regex = this.props.rule.regex;
         var text = this.props.rule.text;
         var bgColor = this.props.rule.backgroundColor;
         var color = this.props.rule.color;
         return (
-            <PanelGroup accordion defaultActiveKey={this.props.selectedRule}>
-                <Panel header={ruleName.toUpperCase()} eventKey={ruleName} bsStyle="primary">
-                    <Input ref='name' type='text' label='Rule Name' defaultValue={ruleName} />
-                    <Input ref='regex' type='text' label='RegEx' placeholder='Page Url' defaultValue={regex} />
-                    <Input ref='text' type='text' label='Text' placeholder='Text to be displayed in the notification.' defaultValue={text} />
-                    <Input ref='bgColor' type='text' label='Background Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={bgColor} />
-                    <Input ref='color' type='text' label='Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={color} />
-                    <Button onClick={this.save} bsStyle='success'>Save</Button>
-                    <Button onClick={this.props.removeFunc} bsStyle='danger' className='pull-right'>Delete</Button>
+            <div className={this.props.className}>
+                <Panel header={ruleName.toUpperCase()} bsStyle="primary">
+                    <form className="form-horizontal">
+                        <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='name' type='text' label='Rule Name' defaultValue={ruleName} />
+                        <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='regex' type='text' label='RegEx' placeholder='RegEx to match (URL)' defaultValue={regex} />
+                        <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='text' type='text' label='Notification Text' placeholder='Text to be displayed in the notification' defaultValue={text} />
+                        <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='bgColor' type='text' label='Background Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={bgColor} />
+                        <Input bsSize="small" labelClassName='col-md-2 col-xs-4' wrapperClassName='col-md-10 col-xs-8' ref='color' type='text' label='Text Color' placeholder='(e.g. green, blue, #FFF)' defaultValue={color} />
+                        {alert}
+                        <Button bsSize="small" onClick={()=>{this.props.saveFunc(this.refs, ()=>{this.setState({alertVisible: true});})}} bsStyle='success'>Save</Button>
+                        <Button bsSize="small" onClick={this.props.removeFunc} bsStyle='danger' className='pull-right'>Delete Rule</Button>
+                    </form>
                 </Panel>
-            </PanelGroup>
+            </div>
         );
     }
 });
 
 var Form = React.createClass({
-    getInitialState: function() {
-        return {
-            pageRules: {},
-            selectedRule: 0
-        };
-    },
     displayName: 'Form',
     addRule: function () {
-        var pageRules = this.state.pageRules;
+        var pageRules = this.props.pageRules;
         var ruleName;
         var counter = 1;
         do{
             ruleName = 'NewRule-' + counter++;
         }while(pageRules[ruleName]);
-        pageRules[ruleName] = {};
-        console.log(pageRules);
-        this.setState({pageRules, selectedRule: ruleName});
+        pageRules[ruleName] = {
+            regex: '',
+            text: '',
+            backgroundColor: '',
+            color: ''
+        };
+        this.syncRules(pageRules);
+    },
+    showRemoveModal: function (name, e) {
+        this.props.setModal({
+            body: 'Are you sure you want to delete rule "' + name + '"? This cannot be undone.',
+            buttonAction: _.partial(this.removeRule, name),
+            buttonText: 'Remove Rule'
+        }, e);
     },
     removeRule: function (name) {
-        var pageRules = this.state.pageRules;
-        if (confirm('Are you sure you want to delete rule "'+name+'"?') == true) {
-            delete pageRules[name];
-            this.syncRules();
-            this.setState({pageRules, selectedRule: Object.keys(this.state.pageRules)[0]});
-        }
+        var pageRules = this.props.pageRules;
+        delete pageRules[name];
+        this.syncRules(pageRules);
     },
-    saveRule: function (name, formValues) {
-        var pageRules = this.state.pageRules;
+    saveRule: function (name, formValues, callback) {
+        callback = callback ? callback : null;
+        var pageRules = this.props.pageRules;
         pageRules[formValues.name.getValue()] = {
             regex: formValues.regex.getValue(),
             text: formValues.text.getValue(),
@@ -74,65 +91,106 @@ var Form = React.createClass({
         if(name !== formValues.name.getValue()) {
             delete pageRules[name];
         }
-        this.syncRules({save: true});
-        this.setState({pageRules});
+        this.syncRules(pageRules, callback);
     },
-    syncRules: function (options) {
-        chrome.storage.sync.set({pageRules: this.state.pageRules});
-        chrome.runtime.sendMessage({method:"notifier-setRules"}, function (response) {
-            if(options.save) {
-                alert('Rule Saved');
+    syncRules: function (pageRules, callback) {
+        chrome.runtime.sendMessage({method:"notifier-setRules", pageRules: pageRules}, ()=>{
+            this.props.loadRules();
+            if(callback){
+                callback();
             }
         });
     },
-    componentWillMount: function () {
-        var selectedRule = Object.keys(this.props.pageRules)[0];
-        this.setState({pageRules: this.props.pageRules, selectedRule});
-    },
     render: function () {
-        var listNum = 0;
         return (
-            <form>
-                {_.map(this.state.pageRules, (rule, name)=>{
+            <div>
+                {_.map(this.props.pageRules, (rule, name)=>{
                     return <FormGroup
                         key={name}
                         rule={rule}
                         name={name}
-                        keyNum={listNum++}
-                        selectedRule={this.state.selectedRule}
-                        removeFunc={_.partial(this.removeRule, name)}
+                        removeFunc={_.partial(this.showRemoveModal, name)}
                         saveFunc={_.partial(this.saveRule, name)}
                     />;
                 })}
                 <Button onClick={this.addRule} bsStyle='success' bsSize='large' block>Add New Rule</Button>
-            </form>
+            </div>
         );
     }
 });
 
 var OptionsBody = React.createClass({
     displayName: 'Body',
-    resetRules: function () {
-        if (confirm('Are you sure you want to reset all rules?') == true) {
-            chrome.runtime.sendMessage({method: "notifier-resetRules"}, function () {
-                location.reload();
-            });
+    getInitialState: function() {
+        return {
+            rules: null,
+            showModal: false,
+            modal: {
+                header: 'Confirm',
+                body: 'Are you sure?',
+                buttonAction: null,
+                buttonStyle: 'danger',
+                buttonText: 'Confirm'
+            }
+        };
+    },
+    setModal: function (options, e) {
+        options.header = options.header || $(e.target).text() || 'Confirm';
+        options.body = options.body || 'Are you sure?';
+        options.buttonStyle = options.buttonStyle || 'danger';
+        options.buttonText = options.buttonText || 'Confirm';
+        options.buttonAction = _.partial(this.closeModal, {buttonAction: options.buttonAction});
+        this.setState({
+            showModal: true,
+            modal: options
+        });
+    },
+    closeModal: function (e) {
+        if(e.buttonAction){
+            e.buttonAction();
         }
+        this.setState({showModal: false});
+    },
+    showResetModal: function (e) {
+        this.setModal({
+            body: 'Are you sure you want to reset to default rules? This cannot be undone.',
+            buttonAction: this.resetRules,
+            buttonText: 'Reset Rules'
+        }, e);
+    },
+    resetRules: function () {
+        chrome.runtime.sendMessage({method: "notifier-resetRules"}, ()=>{
+            this.loadRules();
+        });
+    },
+    loadRules: function () {
+        chrome.storage.sync.get('pageRules', (data)=>{
+            this.setState({ rules: (<Form pageRules={data.pageRules} loadRules={this.loadRules} setModal={this.setModal} {...this.props} />) });
+        });
     },
     render: function () {
+        if(!this.state.rules) {
+            this.loadRules();
+        }
         return (
             <div className="container">
                 <PageHeader>1stdibs.com Notifier Options
-                    <Button onClick={this.resetRules} bsStyle='warning' bsSize='small' className='pull-right reset-button'>Reset Default Rules</Button>
+                    <Button onClick={this.showResetModal} bsStyle='warning' bsSize='small' className='pull-right reset-button'>Reset Default Rules</Button>
                 </PageHeader>
+                <Modal show={this.state.showModal} onHide={this.closeModal}>
+                    <Modal.Header closeButton>{this.state.modal.header}</Modal.Header>
+                    <Modal.Body>
+                        <p>{this.state.modal.body}</p>
+                        <Button onClick={this.closeModal}>Cancel</Button>
+                        <Button onClick={this.state.modal.buttonAction} bsStyle={this.state.modal.buttonStyle} className='pull-right'>{this.state.modal.buttonText}</Button>
+                    </Modal.Body>
+                </Modal>
                 <Well>
-                    <Form {...this.props} />
+                    {this.state.rules ? this.state.rules : <p>Loading Rules...</p>}
                 </Well>
             </div>
-        )
+        );
     }
 });
 
-chrome.storage.sync.get('pageRules',function (data) {
-    React.render(<OptionsBody pageRules={data.pageRules} />, document.getElementById('body'));
-});
+React.render(<OptionsBody />, document.getElementById('body'));

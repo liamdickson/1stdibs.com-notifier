@@ -9,10 +9,12 @@
 var $ = require('jquery');
 var notice;
 
+var color = rule.color ? 'color:' + rule.color + ';' : '';
+var bgColor = rule.backgroundColor ? 'background-color:' + rule.backgroundColor + ';' : '';
+
 notice = $('<div/>', {
     class: 'chrome-extension-notice',
-    style: 'color: ' + rule.color + '; ' +
-    'background-color: ' + rule.backgroundColor,
+    style: color + bgColor,
     text: rule.text
 });
 $('body').prepend(notice);
