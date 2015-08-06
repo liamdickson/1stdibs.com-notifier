@@ -14,13 +14,13 @@ module.exports = {
         insertNotice: __dirname + "/src/insertNotice"
     },
     output: {
-        path: __dirname + '/js/',
+        path: __dirname + '/extension/js/',
         filename: "[name]-bundle.js"
     },
     resolve: {
         extensions: ['', '.js', '.json', '.jsx'],
         alias: {
-            jquery: __dirname + "/js/jquery.min"
+            jquery: __dirname + "/extension/js/jquery.min"
         }
     },
     resolveLoader: { root: __dirname + "/node_modules" },
