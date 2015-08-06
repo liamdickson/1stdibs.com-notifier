@@ -1,6 +1,6 @@
 {
   "name": "notifier-chrome-extension",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The purpose of this chrome extension is to make it easy to tell if you are on the production site. This can be useful if you are afraid of doing something real when you mean to be testing.",
   "main": "extension/js/background-bundle.js",
   "scripts": {
